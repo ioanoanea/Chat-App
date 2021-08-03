@@ -9,10 +9,11 @@ import {FirebaseRecaptchaVerifierModal} from "expo-firebase-recaptcha";
 import {firebaseConfig} from "../../firebase_config/firebaseConfig";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
-import {verifyNumber} from "../../actions/auth/authActions";
+import {checkUserRegistered, registerUser, verifyNumber} from "../../actions/auth/authActions";
 
 function LogInScreen(props) {
 
+    // phone number state
     const [phoneNumber, setPhoneNumber] = React.useState();
 
     const recaptchaVerifier = React.useRef(null);
@@ -44,7 +45,8 @@ function LogInScreen(props) {
                 style={styles.connectButton}
                 text="Connect"
                 onPress={() => {
-                    props.verifyNumber(phoneNumber, recaptchaVerifier);
+                    // props.verifyNumber(phoneNumber, recaptchaVerifier);
+                    props.registerUser('1_test', 'test1');
                 }}
             />
         </View>
@@ -78,6 +80,6 @@ const mapStateToProps = (appStore) => ({
     error: appStore.auth.error
 });
 
-const mapDispatchProps = (dispatch) => bindActionCreators({verifyNumber}, dispatch);
+const mapDispatchProps = (dispatch) => bindActionCreators({verifyNumber, checkUserRegistered, registerUser}, dispatch);
 export default connect(mapStateToProps, mapDispatchProps)(LogInScreen);
 

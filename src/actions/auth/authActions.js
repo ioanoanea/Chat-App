@@ -79,8 +79,7 @@ export function confirmVerificationCode(verificationId, verificationCode) {
             );
             await firebase.auth().signInWithCredential(credential);
             //showMessage({text: 'Phone authentication successful 👍'});
-            //dispatch(onAuthSuccess(credential));
-            dispatch = checkUserRegistered();
+            dispatch(onAuthSuccess(credential));
         } catch (err) {
             dispatch(onAuthFail(err));
             alert(err);
@@ -88,6 +87,10 @@ export function confirmVerificationCode(verificationId, verificationCode) {
     });
 }
 
+/**
+ * Check if user is registered
+ * @returns {(function(*): void)|*}
+ */
 export function checkUserRegistered() {
     return ((dispatch) => {
         firebase
@@ -96,17 +99,44 @@ export function checkUserRegistered() {
             .doc(firebase.auth().currentUser.uid)
             .get()
             .then((snapshot) => {
-                if (snapshot != null){
-                    let user = snapshot.docs.map(doc => {
-                        const id = doc.id;
-                        const data = doc.data;
-                    });
+                if (snapshot.exists) {
+                    let user = {
+                        id : snapshot.id,
+                        username: snapshot.data().username,
+                    }
                     dispatch(onAuthSuccess(user));
-                    alert("success");
+                    alert('success: user -> ' + user.username);
                 } else {
-                    dispatch(onAuthFail("user does not exists!"));
-                    alert("user does not exists!");
+                    dispatch(onAuthFail('user does not exists!'));
                 }
-            });
-    })
+            }).catch((error) => {
+                dispatch(onAuthFail(error));
+                alert(error);
+        });
+    });
+}
+
+/**
+ * Register user
+ * @param id
+ * @param username
+ * @returns {(function(*): void)|*}
+ */
+export function registerUser(id, username) {
+    return ((dispatch) => {
+       firebase
+           .firestore()
+           .collection("users")
+           .doc(id)
+           .set({
+               username: username,
+           })
+           .then(() => {
+               dispatch(onAuthSuccess(firebase.auth().currentUser));
+               alert('success');
+           }).catch((error) => {
+               dispatch(onAuthFail(error));
+               alert(error);
+       });
+    });
 }
